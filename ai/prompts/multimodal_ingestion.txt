@@ -1,0 +1,28 @@
+Analyze this document page carefully.
+
+Extract all meaningful information from the page.
+
+Identify these element types when present:
+- heading
+- paragraph
+- list
+- table
+- chart
+- diagram
+- figure
+- caption
+- other
+
+For tables, preserve row/column relationships and include headers.
+For charts and diagrams, describe the important information and relationships.
+Do not invent information. If something is unreadable, say so.
+
+Return ONLY valid JSON in this exact shape:
+{
+  "elements": [
+    {
+      "type": "heading|paragraph|list|table|chart|diagram|figure|caption|other",
+      "content": "string"
+    }
+  ]
+}

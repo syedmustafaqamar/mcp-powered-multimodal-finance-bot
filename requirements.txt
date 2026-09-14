@@ -1,0 +1,3 @@
+# Install both service dependency sets.
+-r app/requirements.txt
+-r ai/requirements.txt
