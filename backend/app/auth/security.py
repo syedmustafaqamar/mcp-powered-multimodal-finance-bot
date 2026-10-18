@@ -9,7 +9,7 @@ from app.core.config import settings
 password_hash = PasswordHash.recommended()
 
 # FastAPI uses this scheme to read: Authorization: Bearer <token>
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
 
 
 def hash_password(password: str) -> str:

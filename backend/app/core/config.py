@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     AUTH_ALGORITHM: str = "HS256"
     SIGNING_KEY: str = "change-me-in-local-env"
     TOKEN_EXPIRY: int = 24
+    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    MAX_UPLOAD_MB: int = 20
 
     model_config = SettingsConfigDict(
         env_file=".env",

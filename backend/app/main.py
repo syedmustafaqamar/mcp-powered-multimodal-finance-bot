@@ -5,6 +5,7 @@ from uuid import uuid4
 from celery.result import AsyncResult
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from app.auth.dependencies import get_current_active_user
@@ -19,16 +20,24 @@ app = FastAPI(
     description="Multimodal RAG with an MCP-aware multi-agent finance workflow.",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(auth_router)
 
 
 class AskRequest(BaseModel):
-    query: str = Field(min_length=1)
+    query: str = Field(min_length=3, max_length=4000)
     top_k: int = Field(default=5, ge=1, le=20)
 
 
 class SearchRequest(BaseModel):
-    query: str = Field(min_length=1)
+    query: str = Field(min_length=3, max_length=4000)
     top_k: int = Field(default=5, ge=1, le=20)
 
 
@@ -61,7 +70,18 @@ async def ingest_document(
     stored_name = f"{document_id}_{filename}"
     file_path = settings.DOCUMENTS_DIR / stored_name
 
-    contents = await file.read()
+    max_bytes = settings.MAX_UPLOAD_MB * 1024 * 1024
+    chunks = []
+    total = 0
+    while True:
+        chunk = await file.read(1024 * 1024)
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise HTTPException(status_code=413, detail=f"File exceeds {settings.MAX_UPLOAD_MB} MB limit")
+        chunks.append(chunk)
+    contents = b"".join(chunks)
     if not contents:
         raise HTTPException(status_code=400, detail="Uploaded file is empty")
 
@@ -124,6 +144,7 @@ async def search_documents(
 @app.post("/ask", status_code=status.HTTP_202_ACCEPTED)
 async def ask_question(
     request: AskRequest,
+    current_user: User = Depends(get_current_active_user),
 ):
     task = _enqueue("ai.rag.answer", [request.query, request.top_k])
     return {
