@@ -1,6 +1,6 @@
 # FinSight — Finance Research Bot
 
-A full-stack interview-prep project with the original FastAPI finance research backend and a new React + TypeScript frontend.
+A full-stack project with FastAPI finance research backend and a React + TypeScript frontend.
 
 ## Project layout
 
@@ -71,7 +71,7 @@ Open the Vite URL, usually `http://127.0.0.1:5173`. Set `VITE_API_BASE_URL` in `
 
 The backend CORS setting defaults to the Vite localhost origins. If you change the frontend origin, update `CORS_ORIGINS` in `backend/.env`.
 
-## Interview talking points
+## Structure
 
 - **Separation of concerns:** React components handle presentation and interaction; `api.ts` owns HTTP/auth/task-polling concerns; TypeScript types describe API payloads.
 - **Asynchronous work:** the backend returns a Celery task ID rather than holding a request open while the model runs. The frontend polls task status and presents progress/errors.
